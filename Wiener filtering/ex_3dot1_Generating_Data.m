@@ -36,7 +36,7 @@ x = filter(1, A, e);
 %% Generate colored noise
 
 A_noise = [1 0.2];
-v = filter(1, A_noise, e);
+v = filter(1, A_noise, w);
 
 %% Generate noisy observations
 

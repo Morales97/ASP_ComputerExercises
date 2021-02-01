@@ -9,6 +9,10 @@ function [SigmaYY, SigmaYx] = firw_cov_add(A, sigma2, Anoise, sigma2noise, N)
     %
     % Input:
     %   A: AR polynomial
+    %           A(q)·x(n) = e(n)    
+    %       e.g., 
+    %           A(q) = 1 + a1·q^(-1)
+    %           which yields x(n) + a1·x(n-1) = e(n)
     %   sigma2: variance of white noise used to generate x
     %   Anoise: AR polynomial of noise
     %   sigma2noise: variance of white noise used to generate v
