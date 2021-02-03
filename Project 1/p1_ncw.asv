@@ -23,7 +23,7 @@ function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
     % WARNING - for some reason, this plots are not the same (they should
     % be). Same curve, but differ by some factor  
     
-    % Get Z spectrum
+    % Get signal spectrum
     SigmaZzhat = xcovhat(z,z,N);
     PhizzNum = [flip(SigmaZzhat(2:N)); SigmaZzhat]';
     PhizzDen = [zeros(N-1,1); 1]';
@@ -31,8 +31,14 @@ function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
     semilogy(wv, mag3)
     title('Z spectrum')
     figure
+    
+    % Filter
+    numnc = conv(PhixxNum, PhizzDen);
+    dennc = conv(PhixxDen, PhizzNum);
+    numnc = conv(PhizzNum, PhixxDen);
+    dennc = conv(PhizzDen, PhixxNum);
 
-    % Estimate original signal spectrum
+    % Approach 2
     SigmaSshat = SigmaZzhat - SigmaXxhat;
     PhissNum = [flip(SigmaSshat(2:N)); SigmaSshat]';
     PhissDen = [zeros(N-1,1); 1]';
@@ -43,7 +49,9 @@ function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
     
     numnc = conv(PhissNum, PhizzDen);
     dennc = conv(PhissDen, PhizzNum);
-
+     
+    numnc = conv(PhissNum, PhissDen + PhixxDen);
+    dennc = conv(PhissDen, PhissNum + PhixxNum);
     
     shat = ncfilt(numnc, dennc, z);
     
