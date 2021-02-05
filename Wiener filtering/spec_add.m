@@ -1,20 +1,25 @@
+function [PhixyNum,PhixyDen,PhiyyNum,PhiyyDen] = ...
+               spec_add(A, sigma2, Anoise, sigma2noise)
 
-function [PhixyNum, PhixyDen, PhiyyNum, PhiyyDen] = spec_add(A, sigma2, Anoise, sigma2noise)
-    % Find spectrum of y and cross-spectrum xy - WORKS
-    %
-    % Model:
-    %   x is an AR process defined by A
-    %   v is AR noise defined by Anoise
-    %   y = x + v
-    %
-    % Input:
-    %   A: AR polynomial
-    %   sigma2: variance of white noise used to generate x
-    %   Anoise: AR polynomial of noise
-    %   sigma2noise: variance of white noise used to generate v
-    %
-    % Output:
-    %   spectrum of x and cross-spectrum xy, divided into its num and dem
+%
+% [PhixyNum,PhixyDen,PhiyyNum,PhiyyDen] = ...
+%                 spec_add(A, sigma2, Anoise, sigma2noise)
+%	
+%	A           - AR model for the signal x(n), A(q)x(n)=w(n)
+%	sigma2		- E[w(n)*w(n)]
+%	Anoise		- AR model for the noise v(n), Anoise(q)v(n)=e(n)
+%	sigma2noise	- E[e(n)*e(n)]
+%	
+% 	PhixyNum,PhixyDen	- Cross-spectrum between x(n) and y(n)
+% 	PhiyyNum,PhiyyDen	- Spectrum of y(n)
+%	
+%  spec_add: Calculate spectrum and cross-spectrum for y(n)=x(n)+v(n)
+%     
+%     
+%     Author: Daniel Morales
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
     [PhixxNum, PhixxDen] = filtspec(1, A, sigma2);
     [PhivvNum, PhivvDen] = filtspec(1, Anoise, sigma2noise);

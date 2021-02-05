@@ -1,27 +1,26 @@
 
-function [SigmaYY, SigmaYx] = firw_cov_add(A, sigma2, Anoise, sigma2noise, N)
-    % Find covariance matrix of Y and cross-covariance vector Yx - WORKS
-    %
-    % Model:
-    %   x is an AR process defined by A
-    %   v is AR noise defined by Anoise
-    %   y = x + v
-    %
-    % Input:
-    %   A: AR polynomial
-    %           A(q)·x(n) = e(n)    
-    %       e.g., 
-    %           A(q) = 1 + a1·q^(-1)
-    %           which yields x(n) + a1·x(n-1) = e(n)
-    %   sigma2: variance of white noise used to generate x
-    %   Anoise: AR polynomial of noise
-    %   sigma2noise: variance of white noise used to generate v
-    %   N: length of Y = [y(n) ... y(n-N+1)]
-    %
-    % Output:
-    %   SigmaYY: covariance matrix of Y                 (N+1, N+1)
-    %   SigmaYx: cross-covariance between Y and x(n)    (N+1, 1)
+function [SigmaYY,SigmaYx] = ...
+           firw_cov_add(A, sigma2, Anoise, sigma2noise, N)
 
+%
+% [SigmaYY,SigmaYx] = firw_cov_add(A, sigma2, Anoise, sigma2noise, N)
+%	
+%	A		- AR model for the signal x(n), A(q)x(n)=w(n)
+%	sigma2		- E[w(n)*w(n)]
+%	Anoise		- AR model for the noise v(n), Anoise(q)v(n)=e(n)
+%	sigma2noise	- E[e(n)*e(n)]
+%	N  	- Length of Y(n)
+%	
+% 	SigmaYY		- E[Y(n) (Y(n))']
+%	SigmaYx		- E[Y(n) x(n)]
+%
+%  firw_cov_add: Calculate covariance and cross-covariance for
+%     Y(n)=[y(n), y(n-1),...,y(n-N+1)]' where y(n)=x(n)+v(n)
+%     
+%     Author: Daniel Morales
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Since x and v are uncorrelated, covariance of y is cov of x + cov of v
     cov_x = ar2cov(A, sigma2, N);

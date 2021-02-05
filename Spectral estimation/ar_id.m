@@ -1,25 +1,25 @@
 function [Ahat, sigma2hat] = ar_id(y, N)
-    % Find parameters for the AR-N model that generates y using one-step
-    % ahead prediction
-    % This function is equivalent to the built-in function for Yule-Walker
-    % [Ahat, sigma2hat] = aryule(z,N)
-    %
-    % Model
-    %   we assume y to be generated as an AR process of order N
-    %   y(n) + a1·y(n-1) + ... + aN·y(n-N) = e(n)
-    %   then, we can obtain AR parameters as the coef. of a FIR Wiener if
-    %   we define x(n) = y(n+1)
-    %   xhat(n) = A(q)·Y(n)
-    %   yhat(n+1) = a1·y(n) + a2·y(n-1) + ... + aN·y(n-N+1)
-    %
-    % Input
-    %   y: sequence, suposedly an AR-N process
-    %   N: order of the AR model
-    %
-    % Output
-    %   Ahat: AR parameters estimates, of the form [1 a1 a2 ... aN] 
-    %   sigma2hat: driving white noise variance estimate
-    
+
+% [Ahat,sigma2hat]=ar_id(y,N)
+%
+%	y			- Data sequence
+%	N			- Model order 
+%	Ahat			- Estimate of AR polynomial [1, a1, ..., aN]
+%	sigma2hat		- Estimate of noise variance 
+%
+%
+%  ar_id: Identification of AR model
+%
+%         Model: y(n)+a_{1}y(n-1)+...+a_{N}y(n-N)=e(n)
+%
+%     
+%     Author: Daniel Morales
+%
+% NOTE: This function is equivalent to the built-in function for Yule-Walker
+% [Ahat, sigma2hat] = aryule(z,N)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     % find covariance of Y
     SigmaYYhat = covhat(y, N);
     

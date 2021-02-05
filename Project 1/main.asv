@@ -22,7 +22,4 @@ cd ..
 [shatc, numc, denc] = p1_cw(z, z(1:8000), 10, 10);
 
 %% FIR AR filter
-[shatfirAR, thetahatfirAR] = p1_firw_AR(z, z(1:8000), 10, 20, 15);
-
-%% Non-Causal AR filter
-[shatncAR, numncAR, denncAR] = p1_ncw_AR(z, z(1:8000), 30, 10);
+[shatfir, thetahatfir] = p1_firw_AR(z, z(1:8000), 20, 15, 10);

@@ -1,16 +1,22 @@
+function [xhat,num,den] = ncw(y, PhixyNum, PhixyDen, PhiyyNum, PhiyyDen)
 
-function [xhat, num, den] = ncw(y, PhixyNum, PhixyDen, PhiyyNum, PhiyyDen)
-    % Apply non-causal Wiener filter (ncw) to input y to generate estimate
-    % xhat - WORKS
-    %
-    % Model:
-    %   x = H * y
-    %   H = Phixy / Phiyy = PhixyNum·PhiyyDen / PhyxyDen·PhyyyNum
-    %
-    % output:
-    %   xhat: estimate
-    %   num: numerator of non-causal filter H
-    %   den: denominator of non-causal filter H
+%
+% [xhat,num,den] = ncw(y, PhixyNum, PhixyDen, PhiyyNum, PhiyyDen)
+%	
+%	y			- y(n)=x(n)+v(n)
+% 	PhixyNum,PhixyDen	- Cross-spectrum between x(n) and y(n)
+% 	PhiyyNum,PhiyyDen	- Spectrum of y(n)
+%	
+% 	xhat		- Non-causal Wiener estimate of x(n) from y(n)
+% 	num,den		- The Non-causal Wiener filter
+%
+%  ncw: Non-causal Wiener filtering.
+%     
+%     
+%     Author: 
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     num = conv(PhixyNum, PhiyyDen);
     den = conv(PhixyDen, PhiyyNum);

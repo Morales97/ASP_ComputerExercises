@@ -1,24 +1,35 @@
-function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
-    % Project 1 - Non-causal Wiener filter
-    %
-    % Input
-    %   z: commentator + vuvuzelas
-    %   x: vuvuzelas (z(1:8000))
-    %   N: number of autocorrelation samples used to get spectrum of z
-    %   ar_order: order of the AR-m model that tries to fit into x
+function [shat, numnc, dennc] = p1_ncw(z, x, N, M_noise)
+
+% 
+% [shat, thetahatfir] = p1_ncw_AR(z, x, M_signal, M_noise)
+%
+%   z           - Noisy sequence z(n) = s(n) + x(n)
+%   x           - Noise samples x(n), when speaker is silent
+%   N           - number of autocorrelation samples used to estimate spect.
+%   M_signal    - AR model order to estimate z(n)
+%   M_noise     - AR model order to estimate noise
+%
+%   shat        - Estimate of s(n)
+%   thetahatfir - Estimate of FIR coefficients
+%
+% Background noise cancellation with FIR filter of length N. The spectra of
+% signal and noise are estimated with parametric methods, with an AR model
+%
+%     Author: 
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Get noise spectrum
-    [Ahat, sigma2hat] = ar_id(x, ar_order);
-    SigmaXxhat = xcovhat(x,x,N);
-    [PhixxNum, PhixxDen] = filtspec(1, Ahat, sigma2hat);
+    [Anoisehat, sigma2noisehat] = aryule(x, M_noise);
+    [PhixxNum, PhixxDen] = filtspec(1, Anoisehat, sigma2noisehat);
     
     w=linspace(0,pi, 512);
-    [mag1,~,wv]=dbode(1,Ahat',1,w);
-    [mag2,~,wv]=dbode(PhixxNum,PhixxDen,1,w);
+    [mag1,~,w1]=dbode(1,Anoisehat,1,w);
+    [mag2,~,w2]=dbode(PhixxNum,PhixxDen,1,w);
     
-    semilogy(wv, mag1.^2*sigma2hat)
-    figure
-    semilogy(wv, mag2)
+    semilogy(w1, mag1.^2*sigma2noisehat, w2, mag2.^2)
+    legend('AR', 'spec')
     figure
     % WARNING - for some reason, this plots are not the same (they should
     % be). Same curve, but differ by some factor  
@@ -32,7 +43,9 @@ function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
     title('Z spectrum')
     figure
 
+
     % Estimate original signal spectrum
+    SigmaXxhat = xcovhat(x,x,N);
     SigmaSshat = SigmaZzhat - SigmaXxhat;
     PhissNum = [flip(SigmaSshat(2:N)); SigmaSshat]';
     PhissDen = [zeros(N-1,1); 1]';
@@ -51,7 +64,7 @@ function [shat, numnc, dennc] = p1_ncw(z, x, N, ar_order)
     [wbt, BT_spectrum_z] = BlackmanTuckey(z);
     [wbt, BT_spectrum_shat] = BlackmanTuckey(shat);
     
-    w=linspace(0,pi, 512);
+    w=linspace(0, pi, 512);
     [magv,phasev,wv]=dbode(1,Ahat',1,w);
     [magnc,~,wnc]=dbode(numnc,dennc,1,w);
     plt = semilogy(wbt, BT_spectrum_z(1:512).^2, wbt, BT_spectrum_shat(1:512).^2, wv, magv.^2*sigma2hat, wnc, magnc.^2, '--');

@@ -1,20 +1,24 @@
 function SigmaYYhat = covhat(y, N)
-    % Find estimate of covariance matrix NxN, given sequence samples
-    %
-    % Steps
-    % 1. Find BIASED acf estimator
-    % 2. Generate covariance matrix from acf estimation (toeplitz)
-    %
-    % Input
-    %   y: sequence
-    %   N: length of matrix NxN
-    % 
-    % Ouput
-    %   SigmaYYhat: estimate of covariance matrix 
-    %   ATTENTION - r_y(0) will be unbiased, but for all k>0 will be
-    %   biased. The difference should be very small for large M
+
+%
+% SigmaYYhat = covhat(y,N)
+%
+%	y			- Data sequence
+%	N			- Size of covariance matrix
+%
+%  covhat: Estimates SigmaYY=E[Y(n)Y^{T}(n)]
+%
+%		where 
+%
+%	   	Y(n)=[y(n) y(n-1) ... y(n-N+1)]^{T}
+%
+%     
+%     Author: 
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % Get biased acf estimator of length N
+    % 1. Find BIASED acf estimator
     r_y = zeros(1, N);
     M = length(y);
     for k = 0:N-1
@@ -24,5 +28,5 @@ function SigmaYYhat = covhat(y, N)
     end
     r_y = r_y/M;
     
-    % Generate covariance matrix as toeplitz
+    % 2. Generate covariance matrix from acf estimation (toeplitz)
     SigmaYYhat = toeplitz(r_y);

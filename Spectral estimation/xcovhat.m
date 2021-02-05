@@ -1,15 +1,22 @@
 function SigmaYxhat = xcovhat(x,y,N)
-    % Find estimate of cross-covariance vector Nx1, given samples from x
-    % and y
-    %
-    % Input
-    %   x: process
-    %   y: observations
-    %   N: length of matrix NxN
-    % 
-    % Ouput
-    %   SigmaYxhat: estimate of cross-covariance vector 
+%
+% SigmaYxhat = xcovhat(x, y, N)
+%
+%	y, x			- Data sequences
+%	N			- Size of covariance matrix (Nx1)
+%
+%  xcovhat: Estimates SigmaYx=E[Y(n)x(n)]
+%
+%		where 
+%
+%	   	Y(n)=[y(n) y(n-1) ... y(n-N+1)]^{T}
+%
+%     
+%     Author: 
+%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
     r_yx = zeros(N,1);
     M = min(length(x),length(y));
     for k = 0:N-1

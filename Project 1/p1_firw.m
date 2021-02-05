@@ -4,8 +4,6 @@ function [shat, thetahatfir] = p1_firw(z, x, N, ar_order)
     % Model
     %   z(n) = s(n) + x(n)
     %   z is the measurement of signal s + noise x
-    %   y(n) is a disturbance correlated with noise x
-    %   Use y to estimate xhat
     %
     % Input
     %   z: noisy measurments
@@ -21,10 +19,13 @@ function [shat, thetahatfir] = p1_firw(z, x, N, ar_order)
     
     % 2. Get SigmaZs
     % SigmaZs = SigmaSs - SigmaXs = SigmaSs
-    % SigmaZz = SigmaSs + SigmaXx
+    % SigmaZz = SigmaSs + SigmaXx 
     SigmaXxhat = xcovhat(x,x,N);
+    % HEURISTICS - check if using samples with speech delivers better
+    % results
     z_speaking = z(12000:30000);
     SigmaZzhat = xcovhat(z_speaking,z_speaking,N);
+    %SigmaZzhat = xcovhat(z,z,N);
     SigmaSshat = SigmaZzhat - SigmaXxhat;
     SigmaZshat = SigmaSshat;
     
@@ -36,8 +37,8 @@ function [shat, thetahatfir] = p1_firw(z, x, N, ar_order)
 
     % --- PLOT ---
     % Get spectrum using Blackman Tuckey's method
-    [wbt, BT_spectrum_z] = BlackmanTuckey(z);
-    [wbt, BT_spectrum_shat] = BlackmanTuckey(shat);
+    [wbt, BT_spectrum_z] = BlackmanTuckey(z, 20);
+    [wbt, BT_spectrum_shat] = BlackmanTuckey(shat, 20);
     % Get AR
     [Ahat, sigma2hat] = ar_id(x, ar_order);
 

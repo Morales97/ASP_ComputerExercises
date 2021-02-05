@@ -1,4 +1,4 @@
-function [w, BT_spectrum] = BlackmanTuckey(y)
+function [w, BT_spectrum] = BlackmanTuckey(y, M)
     % Blackman Tuckey spectral estimation method
     %
     % P(nu) = FT{r(k)·w(k)}
@@ -6,7 +6,7 @@ function [w, BT_spectrum] = BlackmanTuckey(y)
     % 
     
     % Get ACF and multiply with window 
-    M = 40;
+    M = 20;
     N = 1024;
     window = hamming(2*M+1);
     K = length(y);

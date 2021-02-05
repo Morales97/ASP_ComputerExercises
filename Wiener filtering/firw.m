@@ -1,11 +1,23 @@
+function [xhat,theta] = firw(y, SigmaYx, SigmaYY)
 
-function [xhat, theta] = firw(y, SigmaYx, SigmaYY)
-    % Generate optimal LMMSE estimator and return estimate - WORKS
-    %
-    % Input:
-    %   y: sequence of observations of length K+1
-    %   SigmaYx: cross-covariance between observations and process x 
-    %   SigmaYY: covariance 
+%
+% [xhat,theta] = firw(y, SigmaYx, SigmaYY)
+%	
+%	y       - y(n)=x(n)+v(n)
+% 	SigmaYY	- E[Y(n) (Y(n))']
+%	SigmaYx	- E[Y(n) x(n)]
+%	
+% 	xhat	- FIR Wiener estimate of x(n) from y(n)
+% 	theta	- FIR Wiener filter.
+%	
+%
+%  firw: FIR Wiener estimate of x(n) from y(n)
+%     
+%     
+%     Author: Daniel Morales
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     theta = SigmaYY\SigmaYx;    % Equivalent to inv(SigmaYY) * SigmaYx 
     M = length(theta);
