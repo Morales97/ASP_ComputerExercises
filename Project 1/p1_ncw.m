@@ -1,75 +1,114 @@
-function [shat, numnc, dennc] = p1_ncw(z, x, N, M_noise)
+function [shat, numnc, dennc] = p1_ncw(z, x, M_signal, M_noise, BT_lag, use_BT)
 
 % 
 % [shat, thetahatfir] = p1_ncw_AR(z, x, M_signal, M_noise)
 %
 %   z           - Noisy sequence z(n) = s(n) + x(n)
 %   x           - Noise samples x(n), when speaker is silent
-%   N           - number of autocorrelation samples used to estimate spect.
 %   M_signal    - AR model order to estimate z(n)
 %   M_noise     - AR model order to estimate noise
+%   BT_lag      - Blackman-Tuckey's method lag. Higher lag provides better
+%                 spectral resolution but with higher variance
+%   use_BT      - Binary. If '1', use BT non-parametric estimation. If '0', 
+%                 use AR-M parametric estimation               
 %
 %   shat        - Estimate of s(n)
-%   thetahatfir - Estimate of FIR coefficients
+%   numnc,dennc - Non-causal filter
 %
-% Background noise cancellation with FIR filter of length N. The spectra of
-% signal and noise are estimated with parametric methods, with an AR model
+% Background noise cancellation with non-causal filter. Noise x(n) is
+% estimated with an AR-M_noise model. Signal z(n) can be estimated either
+% with a parametric method (AR-M_signal model), or non-parametric method
+% (Blackman-Tuckey)
 %
 %     Author: 
 %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % Get noise spectrum
+    % Get AR estimate for noise x(n)
     [Anoisehat, sigma2noisehat] = aryule(x, M_noise);
     [PhixxNum, PhixxDen] = filtspec(1, Anoisehat, sigma2noisehat);
     
-    w=linspace(0,pi, 512);
-    [mag1,~,w1]=dbode(1,Anoisehat,1,w);
-    [mag2,~,w2]=dbode(PhixxNum,PhixxDen,1,w);
     
-    semilogy(w1, mag1.^2*sigma2noisehat, w2, mag2.^2)
-    legend('AR', 'spec')
-    figure
-    % WARNING - for some reason, this plots are not the same (they should
-    % be). Same curve, but differ by some factor  
+    % -------- Parametric estimation of z(n) ---------
+    % ---------------- AR-M model --------------------
     
-    % Get Z spectrum
-    SigmaZzhat = xcovhat(z,z,N);
-    PhizzNum = [flip(SigmaZzhat(2:N)); SigmaZzhat]';
-    PhizzDen = [zeros(N-1,1); 1]';
-    [mag3,~,wv]=dbode(PhizzNum,PhizzDen,1,w);
-    semilogy(wv, mag3)
-    title('Z spectrum')
-    figure
+    [Ahat, sigma2hat] = aryule(z, M_signal);
+    [PhizzNum_AR, PhizzDen_AR] = filtspec(1, Ahat, sigma2hat);        
+ 
+    
+    % ------ Non-Parametric estimation of z(n) -------
+    % ---------- Blackman-Tuckey's method ------------
+    
+    % Select window
+    window = hamming(2*BT_lag-1);
+    window = chebwin(2*BT_lag-1);
+    window = blackman(2*BT_lag-1);
 
-
-    % Estimate original signal spectrum
-    SigmaXxhat = xcovhat(x,x,N);
-    SigmaSshat = SigmaZzhat - SigmaXxhat;
-    PhissNum = [flip(SigmaSshat(2:N)); SigmaSshat]';
-    PhissDen = [zeros(N-1,1); 1]';
-    [mag4,~,wv]=dbode(PhissNum,PhissDen,1,w);
-    semilogy(wv, mag4)
-    title('S spectrum')
-    figure 
+    % Compute BT spectrum estimate
+    SigmaZzhat = xcovhat(z, z, BT_lag);
+    PhizzNum_BT = [flip(SigmaZzhat(2:BT_lag)); SigmaZzhat];
+    PhizzNum_BT = (PhizzNum_BT .* window)';
+    PhizzDen_BT = [zeros(BT_lag-1,1); 1]';
+   
+    % -------------------------------------------------
+           
+    % Use Blackman-Tuckey estimation
+    if use_BT
+        PhizzNum = PhizzNum_BT;
+        PhizzDen = PhizzDen_BT;
+    else 
+        PhizzNum = PhizzNum_AR;
+        PhizzDen = PhizzDen_AR;
+    end
     
-    numnc = conv(PhissNum, PhizzDen);
-    dennc = conv(PhissDen, PhizzNum);
-
+    % Get cross-spectrum estimate Phizs
+    % Since z(n) and x(n) are uncorrelated, Phizs = Phiss = Phizz - Phixx
+    [PhissNum, PhissDen] = substract(PhizzNum, PhizzDen, PhixxNum, PhixxDen);
+    PhizsNum = PhissNum;
+    PhizsDen = PhissDen;
     
+    % Compute Non-causal filter
+    numnc = conv(PhizsNum, PhizzDen);
+    dennc = conv(PhizsDen, PhizzNum);
+
+    % Estimate s(n)
     shat = ncfilt(numnc, dennc, z);
     
-    % plot
-    [wbt, BT_spectrum_z] = BlackmanTuckey(z);
-    [wbt, BT_spectrum_shat] = BlackmanTuckey(shat);
+    
+    % --- PLOTS ---
+    
+    % Plot parametric vs non-parametric spectrum estimates
+    w=linspace(0, pi, 512);
+    [magp,~,wp]=dbode(PhizzNum_AR, PhizzDen_AR, 1, w);
+    [magbt,~,wbt]=dbode(PhizzNum_BT, PhizzDen_BT, 1, w);
+    figure
+    plt = semilogy(wp, magp.^2, wbt, magbt.^2);
+    set(plt, 'LineWidth', 1.5)
+    legend('Parametric estimation', 'Blackman-Tuckey method')
+    title('Z spectrum')
+    
+    % Plot input, noise, output spectra and filter freq. response
+    [Aouthat, sigma2outhat] = aryule(shat, M_signal);
     
     w=linspace(0, pi, 512);
-    [magv,phasev,wv]=dbode(1,Ahat',1,w);
+    [magz,~,wz]=dbode(1,Ahat,1,w);
+    [mags,~,ws]=dbode(1,Aouthat,1,w);
+    [magx,~,wx]=dbode(1,Anoisehat,1,w);
     [magnc,~,wnc]=dbode(numnc,dennc,1,w);
-    plt = semilogy(wbt, BT_spectrum_z(1:512).^2, wbt, BT_spectrum_shat(1:512).^2, wv, magv.^2*sigma2hat, wnc, magnc.^2, '--');
+    magout = magz.^2*sigma2hat .* magnc.^2;
+    figure
+    plt = semilogy(wz,magz.^2*sigma2hat, 'b', ...   % Input
+                   ws, magout, 'g', ... % Output as Input * filter - should we use this, or AR estimate of output?
+                   ws, mags.^2*sigma2outhat, 'r', ...
+                   wx, magx.^2*sigma2noisehat, 'k:', ...
+                   wnc, magnc.^2, '--');
     set(plt, 'LineWidth', 1.5)
     title('Spectra')
-    legend('Input z (BT)', 'Output shat (BT)','Noise', 'Non-causal freq response')
+    legend('Input z', 'Output (input * filter)', 'Output (AR estimate of shat)', 'Noise', 'Non-causal freq response')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
+
+    
+    
+    

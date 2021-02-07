@@ -1,59 +1,56 @@
-function [shat, numc, denc] = p1_cw(z, x, N, ar_order)    
-    % Project 1 - Causal Wiener filter
-    %
-    % Input
-    %   z: commentator + vuvuzelas
-    %   x: vuvuzelas (z(1:8000))
-    %   N: number of autocorrelation samples used to get spectrum of z
-    %   ar_order: order of the AR-m model that tries to fit into x
+function [shat, numc, denc] = p1_cw(z, x, M_signal, M_noise)    
+
+% 
+% [shat, thetahatfir] = p1_cw(z, x, M_signal, M_noise)
+%
+%   z           - Noisy sequence z(n) = s(n) + x(n)
+%   x           - Noise samples x(n), when speaker is silent
+%   M_signal    - AR model order to estimate z(n)
+%   M_noise     - AR model order to estimate noise
+%
+%   shat        - Estimate of s(n)
+%   numc, denc  - Causal filter
+%
+% Background noise cancellation with causal filter.
+%
+%     Author: 
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % Get noise spectrum
-    [Ahat, sigma2hat] = ar_id(x, ar_order);
-    SigmaXxhat = xcovhat(x,x,N);
-    [PhixxNum, PhixxDen] = filtspec(1, Ahat, sigma2hat);
+    % Get AR estimate for noise x(n)
+    [Anoisehat, sigma2noisehat] = aryule(x, M_noise);
+    [PhixxNum, PhixxDen] = filtspec(1, Anoisehat, sigma2noisehat);
     
-    % Get Z spectrum
-    SigmaZzhat = xcovhat(z,z,N);
-    PhizzNum = [flip(SigmaZzhat(2:N)); SigmaZzhat]';
-    PhizzDen = [zeros(N-1,1); 1]';
+    % Get AR estimate for z(n)
+    [Ahat, sigma2hat] = aryule(z, M_signal);
+    [PhizzNum, PhizzDen] = filtspec(1, Ahat, sigma2hat);  
     
-    PhizzNum_causal = SigmaZzhat;
-    PhizzDen_causal = 1;
+    % Get cross-spectrum estimate Phizs
+    % Since z(n) and x(n) are uncorrelated, Phizs = Phiss = Phizz - Phixx
+    [PhissNum, PhissDen] = substract(PhizzNum, PhizzDen, PhixxNum, PhixxDen);
+    PhizsNum = PhissNum;
+    PhizsDen = PhissDen;
     
-    PhizzNum_anticausal = flip(SigmaZzhat(2:N));
-    PhizzDen_anticausal = 1;
-    
-    % Estimate original signal S spectrum
-    SigmaSshat = SigmaZzhat - SigmaXxhat;
-    PhissNum_causal = SigmaSshat;
-    PhissDen_causal = 1;
-    
-    % Get causal part of Phiss / Phizz_anticausal
-    num = PhissNum_causal;
-    den = PhizzNum_anticausal;
-        % Convert into num/den * delay. I think it's not necessary bc delay
-        % will always be zero
-    [num, den, dly] = delay(num,den);
-        % Factorize denominator into causal / anticausal
-    [den_causal, den_anticausal] = fact(den);
-    
-    % Filter
-    numc = num;
-    denc = conv(PhizzNum_causal, den_causal)';
-    
-    shat = filter(numc, denc, z);
+    % Compute causal filter and estimate of s(n)
+    % Select delay m=0, since we are filtering
+    [shat, numc, denc] = cw(z, PhizsNum, PhizsDen, PhizzNum, PhizzDen, 0);
     
     
-    % Plot
-    [wbt, BT_spectrum_z] = BlackmanTuckey(z);
-    [wbt, BT_spectrum_shat] = BlackmanTuckey(shat);
+    % --- PLOTS ---
+    [Aouthat, sigma2outhat] = aryule(shat, M_signal);
     
-    w=linspace(0,pi, 512);
-    [magv,phasev,wv]=dbode(1,Ahat',1,w);
+    w=linspace(0, pi, 512);
+    [magz,~,wz]=dbode(1,Ahat,1,w);
+    [mags,~,ws]=dbode(1,Aouthat,1,w);
+    [magx,~,wx]=dbode(1,Anoisehat,1,w);
     [magc,~,wc]=dbode(numc,denc,1,w);
-    plt = semilogy(wbt, BT_spectrum_z(1:512).^2, wbt, BT_spectrum_shat(1:512).^2, wv, magv.^2*sigma2hat, wc, magc.^2, '--');
+    plt = semilogy(wz, magz.^2*sigma2hat, 'b', ...
+                   ws, mags.^2*sigma2outhat, 'r', ...
+                   wx, magx.^2*sigma2noisehat, ':k', ...
+                   wc, magc.^2, '--');
     set(plt, 'LineWidth', 1.5)
     title('Spectra')
-    legend('Input z (BT)', 'Output shat (BT)','Noise', 'Causal freq response')
+    legend('Input', 'Output shat', 'Noise', 'Causal freq response')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
