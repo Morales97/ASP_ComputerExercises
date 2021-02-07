@@ -99,13 +99,13 @@ function [shat, numnc, dennc] = p1_ncw(z, x, M_signal, M_noise, BT_lag, use_BT)
     magout = magz.^2*sigma2hat .* magnc.^2;
     figure
     plt = semilogy(wz,magz.^2*sigma2hat, 'b', ...   % Input
-                   ws, magout, 'r', ... % Output as Input * filter - should we use this, or AR estimate of output?
-                   ... % ws, mags.^2*sigma2outhat, 'r', 
+                   ws, magout, 'g', ... % Output as Input * filter - should we use this, or AR estimate of output?
+                   ws, mags.^2*sigma2outhat, 'r', ...
                    wx, magx.^2*sigma2noisehat, 'k:', ...
                    wnc, magnc.^2, '--');
     set(plt, 'LineWidth', 1.5)
     title('Spectra')
-    legend('Input z', 'Output (input * filter)', 'Noise', 'Non-causal freq response')
+    legend('Input z', 'Output (input * filter)', 'Output (AR estimate of shat)', 'Noise', 'Non-causal freq response')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
 

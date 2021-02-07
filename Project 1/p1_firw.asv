@@ -47,13 +47,13 @@ function [shat, thetahatfir] = p1_firw(z, x, N, M_signal, M_noise)
 
     figure
     w=linspace(0,pi);
-    [magz,~,wz]=dbode(1,Ahat,1,w);
+    [mags,~,ws]=dbode(1,Ahat,1,w);
     %[magout,~,wout]=dbode(1,Ahatout,1,w);
     [magv,~,wv]=dbode(1,Anoisehat,1,w);
     [magfir,~,wfir]=dbode(thetahatfir',1,1,w);
     magout = magz.^2*sigma2hat .* magfir.^2;
-    plt = semilogy(wz, magz.^2*sigma2hat, 'b', ...
-                   wz, magout, 'r', ...
+    plt = semilogy(ws, mags.^2*sigma2hat, 'b', ...
+                   wout, magout, 'r', ...
                    wv, magv.^2*sigma2noisehat, ':k', ...
                    wfir, magfir.^2, '--');
     set(plt, 'LineWidth', 1.5)

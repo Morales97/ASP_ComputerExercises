@@ -40,13 +40,15 @@ function [shat, numc, denc] = p1_cw(z, x, M_signal, M_noise)
     % --- PLOTS ---
     [Aouthat, sigma2outhat] = aryule(shat, M_signal);
     
+    figure
     w=linspace(0, pi, 512);
     [magz,~,wz]=dbode(1,Ahat,1,w);
     [mags,~,ws]=dbode(1,Aouthat,1,w);
     [magx,~,wx]=dbode(1,Anoisehat,1,w);
     [magc,~,wc]=dbode(numc,denc,1,w);
+    magout = magz.^2*sigma2hat .* magc.^2;
     plt = semilogy(wz, magz.^2*sigma2hat, 'b', ...
-                   ws, mags.^2*sigma2outhat, 'r', ...
+                   ws, magout, 'r', ...
                    wx, magx.^2*sigma2noisehat, ':k', ...
                    wc, magc.^2, '--');
     set(plt, 'LineWidth', 1.5)

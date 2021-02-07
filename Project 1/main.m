@@ -14,7 +14,7 @@ cd ..
 
 %% FIR filter
 x = z(1:8000);      % Noise samples
-N = 40;             % FIR filter length
+N = 30;             % FIR filter length
 M_signal = 30;      % AR model order for z(n)
 M_noise = 10;       % AR model order for x(n)
 
