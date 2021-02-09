@@ -57,9 +57,29 @@ function [shat, thetahatfir] = p1_firw(z, x, N, M_signal, M_noise)
                    wv, magv.^2*sigma2noisehat, ':k', ...
                    wfir, magfir.^2, '--');
     set(plt, 'LineWidth', 1.5)
-    legend('Input','Output','Noise', 'FIR filter')
-    title('Spectra')
+    title('FIR Wiener filter (length 30)')
+    legend('Input z(n) PSD estimate (AR-30)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'FIR filter freq. response')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
+    grid on
+    set(gca,'FontSize', 14)
+    set(legend,'Interpreter','latex')
     
+    % Comparison
+%     w=linspace(0, pi, 512);
+%     [magz,~,wz]=dbode(1,Ahat,1,w);
+%     [magfir,~,wfir]=dbode(thetahatfir',1,1,w);
+%     magout = magz.^2*sigma2hat .* magfir.^2;
+%     hold on
+%     plt = semilogy(wz, magout);
+%     set(plt, 'LineWidth', 1.5)
+%     legend('FIR filter (length 10)')
+%     title('Fitler frequency response comparison')
+%     set(legend,'Interpreter','latex')
+%     xlabel('Frequency (rad/s)')
+%     ylabel('Magnitude')
+%     grid on
+%     set(gca,'FontSize', 14)
+    
+
     

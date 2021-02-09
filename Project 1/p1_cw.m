@@ -38,21 +38,41 @@ function [shat, numc, denc] = p1_cw(z, x, M_signal, M_noise)
     
     
     % --- PLOTS ---
-    [Aouthat, sigma2outhat] = aryule(shat, M_signal);
+%     [Aouthat, sigma2outhat] = aryule(shat, M_signal);
+%     
+%     figure
+%     w=linspace(0, pi, 512);
+%     [magz,~,wz]=dbode(1,Ahat,1,w);
+%     [mags,~,ws]=dbode(1,Aouthat,1,w);
+%     [magx,~,wx]=dbode(1,Anoisehat,1,w);
+%     [magc,~,wc]=dbode(numc,denc,1,w);
+%     magout = magz.^2*sigma2hat .* magc.^2;
+%     plt = semilogy(wz, magz.^2*sigma2hat, 'b', ...
+%                    ws, magout, 'r', ...
+%                    wx, magx.^2*sigma2noisehat, ':k', ...
+%                    wc, magc.^2, '--');
+%     set(plt, 'LineWidth', 1.5)
+%     title('Causal Wiener filtering')
+%     legend('Input z(n) PSD estimate (AR-30)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'Causal filter freq. response')
+%     set(legend,'Interpreter','latex')
+%     xlabel('Frequency (rad/s)')
+%     ylabel('Magnitude')
+%     grid on
+%     set(gca,'FontSize', 14)
     
-    figure
+    % Comparison
+    hold on
     w=linspace(0, pi, 512);
     [magz,~,wz]=dbode(1,Ahat,1,w);
-    [mags,~,ws]=dbode(1,Aouthat,1,w);
-    [magx,~,wx]=dbode(1,Anoisehat,1,w);
     [magc,~,wc]=dbode(numc,denc,1,w);
     magout = magz.^2*sigma2hat .* magc.^2;
-    plt = semilogy(wz, magz.^2*sigma2hat, 'b', ...
-                   ws, magout, 'r', ...
-                   wx, magx.^2*sigma2noisehat, ':k', ...
-                   wc, magc.^2, '--');
+    %figure
+    plt = semilogy(wz, magout);
     set(plt, 'LineWidth', 1.5)
-    title('Spectra')
-    legend('Input', 'Output shat', 'Noise', 'Causal freq response')
+    legend('Causal filter')
+    set(legend,'Interpreter','latex')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
+    grid on
+    set(gca,'FontSize', 14)
+    
