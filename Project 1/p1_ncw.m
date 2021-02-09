@@ -79,55 +79,55 @@ function [shat, numnc, dennc] = p1_ncw(z, x, M_signal, M_noise, BT_lag, use_BT)
     % --- PLOTS ---
     
     % Plot parametric vs non-parametric spectrum estimates
-%     w=linspace(0, pi, 512);
-%     [magp,~,wp]=dbode(PhizzNum_AR, PhizzDen_AR, 1, w);
-%     [magbt,~,wbt]=dbode(PhizzNum_BT, PhizzDen_BT, 1, w);
-%     figure
-%     plt = semilogy(wp, magp.^2, wbt, magbt.^2);
-%     set(plt, 'LineWidth', 1.5)
-%     legend('Parametric estimation (AR-30)', 'Non-parametric (Blackman-Tuckey)')
-%     title('Input z(n) PSD estimate')
-%     grid on
-%     set(gca,'FontSize', 14)
-%     set(legend,'Interpreter','latex')
+    w=linspace(0, pi, 512);
+    [magp,~,wp]=dbode(PhizzNum_AR, PhizzDen_AR, 1, w);
+    [magbt,~,wbt]=dbode(PhizzNum_BT, PhizzDen_BT, 1, w);
+    figure
+    plt = semilogy(wp, magp.^2, wbt, magbt.^2);
+    set(plt, 'LineWidth', 1.5)
+    legend('Parametric estimation (AR-30)', 'Non-parametric (Blackman-Tuckey)')
+    title('Input z(n) PSD estimate')
+    grid on
+    set(gca,'FontSize', 14)
+    set(legend,'Interpreter','latex')
     
     % Plot input, noise, output spectra and filter freq. response
-%     [Aouthat, sigma2outhat] = aryule(shat, M_signal);
-%     
-%     w=linspace(0, pi, 512);
-%     [magz,~,wz]=dbode(1,Ahat,1,w);
-%     [mags,~,ws]=dbode(1,Aouthat,1,w);
-%     [magx,~,wx]=dbode(1,Anoisehat,1,w);
-%     [magnc,~,wnc]=dbode(numnc,dennc,1,w);
-%     magout = magz.^2*sigma2hat .* magnc.^2;
-%     figure
-%     plt = semilogy(wz,magz.^2*sigma2hat, 'b', ...   % Input
-%                    ws, magout, 'r', ... % Output as Input * filter - should we use this, or AR estimate of output?
-%                    ... % ws, mags.^2*sigma2outhat, 'r', 
-%                    wx, magx.^2*sigma2noisehat, 'k:', ...
-%                    wnc, magnc.^2, '--');
-%     set(plt, 'LineWidth', 1.5)
-%     title('Non-causal Wiener fitler')
-%     legend('Input z(n) PSD estimate (AR-30)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'Non-causal filter freq. response')
-%     set(legend,'Interpreter','latex')
-%     xlabel('Frequency (rad/s)')
-%     ylabel('Magnitude')
-%     grid on
-%     set(gca,'FontSize', 14)
+    [Aouthat, sigma2outhat] = aryule(shat, M_signal);
     
-    hold on
     w=linspace(0, pi, 512);
     [magz,~,wz]=dbode(1,Ahat,1,w);
+    [mags,~,ws]=dbode(1,Aouthat,1,w);
+    [magx,~,wx]=dbode(1,Anoisehat,1,w);
     [magnc,~,wnc]=dbode(numnc,dennc,1,w);
     magout = magz.^2*sigma2hat .* magnc.^2;
-    %figure
-    plt = semilogy(wz, magout);
+    figure
+    plt = semilogy(wz,magz.^2*sigma2hat, 'b', ...   % Input
+                   ws, magout, 'r', ... % Output as Input * filter - should we use this, or AR estimate of output?
+                   ... % ws, mags.^2*sigma2outhat, 'r', 
+                   wx, magx.^2*sigma2noisehat, 'k:', ...
+                   wnc, magnc.^2, '--');
     set(plt, 'LineWidth', 1.5)
-    legend('FIR filter (length 10)','FIR filter (length 30)', 'Causal filter','Non-causal filter')
+    title('Non-causal Wiener fitler')
+    legend('Input z(n) PSD estimate (AR-30)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'Non-causal filter freq. response')
     set(legend,'Interpreter','latex')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')
     grid on
     set(gca,'FontSize', 14)
+%     
+%     hold on
+%     w=linspace(0, pi, 512);
+%     [magz,~,wz]=dbode(1,Ahat,1,w);
+%     [magnc,~,wnc]=dbode(numnc,dennc,1,w);
+%     magout = magz.^2*sigma2hat .* magnc.^2;
+%     %figure
+%     plt = semilogy(wz, magout);
+%     set(plt, 'LineWidth', 1.5)
+%     legend('FIR filter (length 10)','FIR filter (length 30)', 'Causal filter','Non-causal filter')
+%     set(legend,'Interpreter','latex')
+%     xlabel('Frequency (rad/s)')
+%     ylabel('Magnitude')
+%     grid on
+%     set(gca,'FontSize', 14)
     
     

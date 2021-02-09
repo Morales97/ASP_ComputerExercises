@@ -22,20 +22,10 @@ M_noise = 63;       % AR model order for x(n)
 
 [shatfir, thetahatfir] = p1_firw(z, x, N, M_signal, M_noise);
 
-M_signal = 30;      % AR model order for z(n)
-M_noise = 10;       % AR model order for x(n)
-
-[shatfir_short, thetahatfir] = p1_firw(z, x, N, M_signal, M_noise);
-
 %% Causal filter
 x = z(1:8000);      % Noise samples
 M_signal = 30;      % AR model order for z(n)
 M_noise = 10;       % AR model order for x(n)
-
-[shatc_short, numc, denc] = p1_cw(z, x, M_signal, M_noise);
-
-M_signal = 142;      % AR model order for z(n)
-M_noise = 63;       % AR model order for x(n)
 
 [shatc, numc, denc] = p1_cw(z, x, M_signal, M_noise);
 
