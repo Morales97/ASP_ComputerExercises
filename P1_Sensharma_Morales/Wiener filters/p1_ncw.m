@@ -108,7 +108,7 @@ function [shat, numnc, dennc] = p1_ncw(z, x, M_signal, M_noise, BT_lag, use_BT)
                    wnc, magnc.^2, '--');
     set(plt, 'LineWidth', 1.5)
     title('Non-causal Wiener fitler')
-    legend('Input z(n) PSD estimate (AR-50)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'Non-causal filter freq. response')
+    legend('Input z(n) PSD estimate (AR-30)','Output $\hat{s}$(n)','Noise PSD estimate (AR-10)', 'Non-causal filter freq. response')
     set(legend,'Interpreter','latex')
     xlabel('Frequency (rad/s)')
     ylabel('Magnitude')

@@ -1,17 +1,32 @@
-
+addpath(pwd)
+cd 'Support scripts'/
 addpath(pwd)
 cd ..
-cd 'Spectral estimation'/
+cd 'Wiener filters'/
 addpath(pwd)
-cd ..
-cd 'Wiener filtering'/
-addpath(pwd)
-cd ..
 cd ..
 cd mfiles/
 addpath(pwd)
 cd ..
 [z,fs] = audioread('EQ2401project1data2021.wav');
+
+
+%% AR model order selection - signal
+
+[z,fs] = audioread('EQ2401project1data2021.wav');
+M_lim = 200;
+
+sig = z;
+mdl_aic(sig, M_lim);
+
+%% AR model order selection - noise
+
+[z,fs] = audioread('EQ2401project1data2021.wav');
+x = z(1:8000);      % Noise samples
+M_lim = 200;
+
+sig = x;
+mdl_aic(sig, M_lim);
 
 %% FIR filter
 x = z(1:8000);      % Noise samples
@@ -38,14 +53,3 @@ use_BT = 0;         % '1' to use Blackman-tuckey PSD estimation, '0' to use
                     % AR estimation
 
 [shatnc, numnc, dennc] = p1_ncw(z, x, M_signal, M_noise, BT_lag, use_BT);
-
-%% AR model order selection
-[z,fs] = audioread('EQ2401project1data2021.wav');
-x = z(1:8000);      % Noise samples
-
-M_lim = 400;
-sig = z;
-aic(sig, M_lim);
-
-sig = x;
-aic(sig, M_lim);
